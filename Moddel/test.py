@@ -9,6 +9,6 @@ import torch
 # 图片处理和预测函数
 def detect_image(image):
     predicted_label = True
-    confidence = 0.98
+    confidence = 0.97
     return predicted_label, confidence
 

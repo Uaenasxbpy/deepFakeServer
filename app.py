@@ -2,7 +2,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-
+from Moddel import test
 # 处理跨域亲请求
 app = Flask(__name__)
 CORS(app)
@@ -20,7 +20,10 @@ def process_image(file):
     :param file:
     :return:
     '''
-    return True, "照片是真的", "准确率为98.65%"
+    print(file)
+    # test.detect_image(image=100)
+    predicted_label, confidence = test.detect_image(image=file)
+    return predicted_label, "照片是真的", "准确率为:"+str(confidence * 100) + "%"
 
 # TODO 处理视频文件的函数
 def process_video(file):

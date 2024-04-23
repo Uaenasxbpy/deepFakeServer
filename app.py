@@ -109,8 +109,6 @@ def cleanup_temp_files():
 def teardown(exc=None):
     cleanup_temp_files()
 
-
-
 if __name__ == '__main__':
     # print("API server running at http://127.0.0.1:5000/process")
     app.run(debug=True, port=5000)

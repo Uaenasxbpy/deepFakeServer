@@ -4,7 +4,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 import shutil
 
-from Moddel import test
+from Model import test
 from tools import get_vedio_images
 # 处理跨域亲请求
 app = Flask(__name__)

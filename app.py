@@ -4,7 +4,7 @@ from flask_cors import CORS
 import os
 from concurrent.futures import ThreadPoolExecutor
 import shutil
-from Model import test
+from Model import test, use_model
 from tools import get_vedio_images
 # 处理跨域亲请求
 app = Flask(__name__)
@@ -57,8 +57,15 @@ def process_image(filepath):
     :return:
     '''
     logging.info(f'图片路径：{filepath}')
-    predicted_label, confidence = test.detect_image(image=filepath)
-    return predicted_label, "照片是真的 ", "准确率为:" + str(confidence * 100) + "%"
+
+    # predicted_label, confidence = test.detect_image(image=filepath)
+    predicted, confidence = use_model.get_result(image_path=filepath)
+    if predicted == 1:
+        predicted_label = True
+        return predicted_label, "照片是真的 ", "准确率为:" + str(confidence) + "%"
+    else:
+        predicted_label = False
+        return predicted_label, "照片是假的 ", "准确率为:" + str(confidence) + "%"
 
 # TODO 处理视频
 def process_video(filepath):

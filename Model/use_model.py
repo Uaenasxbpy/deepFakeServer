@@ -53,6 +53,6 @@ def get_result(image_path):
     # 输出预测结果和置信度
     print("预测类别:", prediction)  # 假设0表示真实，1表示伪造
     print("置信度 (%):", confidence)
-    return prediction, confidence
+    return prediction, "{:.2f}".format(confidence)
 
 

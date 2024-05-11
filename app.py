@@ -62,10 +62,10 @@ def process_image(filepath):
     predicted, confidence = use_model.get_result(image_path=filepath)
     if predicted == 1:
         predicted_label = True
-        return predicted_label, "照片是真的 ", "准确率为:" + str(confidence) + "%"
+        return predicted_label, "照片是真的 ", "准确率为:" + confidence + "%"
     else:
-        predicted_label = False
-        return predicted_label, "照片是假的 ", "准确率为:" + str(confidence) + "%"
+        predicted_label = True
+        return predicted_label, "照片是假的 ", "准确率为:" + confidence + "%"
 
 # TODO 处理视频
 def process_video(filepath):
@@ -74,11 +74,46 @@ def process_video(filepath):
     :param filepath:
     :return:
     '''
-    time1, image_path = get_vedio_images.extract_frames(filepath)
-    print(image_path)
-    for frame in image_path:
-        process_image(frame)
-    return False, "视频是假的", "准确率高达95.35%,一共使用了" + str(time1) + "s。"
+    time1, image_paths = get_vedio_images.extract_frames(filepath)
+    # print(image_paths)
+    predicted_dict = []
+    confidence_dict = []
+    # TODO 通过判断返回的结果中假的和真的数据进行合并，最后判断视频是否是伪造的
+    for image_path in image_paths:
+        predicted, confidence = use_model.get_result(image_path=image_path)
+        predicted_dict.append(predicted)
+        confidence_dict.append(confidence)
+    print(predicted_dict)
+
+    # 初始化0和1的计数和索引列表
+    count_0 = 0
+    count_1 = 0
+    indices_0 = []
+    indices_1 = []
+
+    # 遍历列表
+    for i, value in enumerate(predicted_dict):
+        if value == 0:
+            count_0 += 1
+            indices_0.append(i)
+        elif value == 1:
+            count_1 += 1
+            indices_1.append(i)
+            # 计算对应索引的浮点数平均值
+    avg_confidence_0 = sum(float(confidence_dict[i]) for i in indices_0) / len(indices_0) if indices_0 else 0
+    avg_confidence_1 = sum(float(confidence_dict[i]) for i in indices_1) / len(indices_1) if indices_1 else 0
+    # print(len(indices_0))
+    # print(len(indices_1))
+    # print(avg_confidence_0)
+    # print(avg_confidence_1)
+    if indices_0 > indices_1:
+        return True, "视频是假的", "准确率高达:" + str(avg_confidence_0)+ "%,一共使用了" + str(time1) + "s。"
+    elif indices_0 < indices_1:
+        return True, "视频是真的", "准确率高达:" + str(avg_confidence_0) + "%,一共使用了" + str(time1) + "s。"
+    else:
+        return False,"不能判别", "换一个视频试一试"
+
+
 
 # TODO API接口的路由
 @app.route('/process', methods=['POST'])
@@ -117,7 +152,7 @@ def process_file():
         # future.add_done_callback(get_result)
         # return jsonify({'status': 0, 'message': '文件正在处理，请稍后！'})
     else:
-        return jsonify({'status': 0, 'message': '文件类型不支持！'})
+        return jsonify({'status': 0, 'message': '文件类型不支持，检查后再传入！'})
 
 
 

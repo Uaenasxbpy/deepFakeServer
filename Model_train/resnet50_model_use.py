@@ -1,15 +1,17 @@
+import torch
+import torch.nn.functional as F
 from torchvision.transforms import transforms
 from torchvision.models import resnet50
 from PIL import Image
-import torch
-import torch.nn.functional as F
+
 # 定义设备
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 # 加载保存的模型
 model = resnet50(pretrained=False)
 num_ftrs = model.fc.in_features
 model.fc = torch.nn.Linear(num_ftrs, 2)
-model.load_state_dict(torch.load('Model_train/resnet50_fake_detection_model.pth', map_location=device))
+model.load_state_dict(torch.load('resnet50_fake_detection_model.pth', map_location=device))
 model.eval()  # 设置模型为评估模式
 
 # 定义输入图像的转换
@@ -31,7 +33,6 @@ def predict_image(image_path):
     predicted_class = predicted_class.item()        # 获取预测类别索引
     probability = probability.item()                # 获取预测类别的概率
     class_names = ['Fake', 'real']                  # 定义类别名称
-
     return class_names[predicted_class], probability
 
 
@@ -39,14 +40,14 @@ def get_result(image_path):
     # 提供图像路径
     # image_path = 'path_to_your_image.jpg'  # 替换为你的图像路径
     predicted_class, confidence = predict_image(image_path)
-    if predicted_class == 'Fake':
+    if predicted_class == 'real':
         prediction = 0
     else:
         prediction = 1
     # 输出预测结果和置信度
     print("预测类别:", prediction)  # 假设0表示真实，1表示伪造
     print("置信度 (%):", confidence)
-    return prediction, "{:.2f}".format(confidence * 100)
+    return prediction, "{:.2f}".format(confidence)
 
 # 示例用法
 # image_path = 'OIP-C.jpg'  # 替换为你的图像路径

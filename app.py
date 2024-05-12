@@ -4,7 +4,8 @@ from flask_cors import CORS
 import os
 from concurrent.futures import ThreadPoolExecutor
 import shutil
-from Model import test, use_model
+
+from Model import use_model
 from tools import get_vedio_images
 # 处理跨域亲请求
 app = Flask(__name__)

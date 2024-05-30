@@ -11,7 +11,7 @@ class ModelTrainer:
         :param device: str类型，设备标识符，指定模型在CPU或GPU上运行，例如'cpu'或'cuda:0'
         :param train_loader: torch.utils.data.DataLoader类型，训练数据加载器，用于迭代训练数据集
         :param valid_loader: torch.utils.data.DataLoader类型，评估数据加载器，用于迭代测试数据集
-        :param epoch: 轮数
+        :param epoch: int 轮数
         '''
         self.model = model
         self.criterion = criterion

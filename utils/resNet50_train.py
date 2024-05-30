@@ -15,17 +15,17 @@ epoch = 2
 
 # 数据预处理步骤
 transform = transforms.Compose([
-    transforms.Resize((224, 224)),     # 将图像调整为224x224，这是ResNet的默认输入尺寸
-    transforms.ToTensor(),             # 将PIL Image或numpy.ndarray转换为torch.Tensor，并缩放到[0.0, 1.0]
-    transforms.Normalize(              # 标准化图像
-        mean=[0.485, 0.456, 0.406],    # 在ImageNet上预训练的模型使用的均值
-        std=[0.229, 0.224, 0.225]      # 在ImageNet上预训练的模型使用的标准差
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225]
     )
 ])
 
 # 加载数据集
 # TODO 路径需改为训练集
-dataset = datasets.ImageFolder(root='G:\Pycharm\Project1\deepFakeServer\Model_train\data\CASIA2.0_revised', transform=transform)
+dataset = datasets.ImageFolder(root='G:\Pycharm\Project1\deepFakeServer\Model_train\CASIA2.0_revised\\train', transform=transform)
 train_size = int(0.8 * len(dataset))
 valid_size = len(dataset) - train_size
 train_dataset, valid_dataset = random_split(dataset, [train_size, valid_size])
@@ -61,7 +61,7 @@ trainer.train_model()
 # TODO 保存模型
 
 '''注：这里的valid_loader应该替换为test_loader'''
-dataset_test = datasets.ImageFolder(root='测试集路径', transform=transform)
+dataset_test = datasets.ImageFolder(root='G:\Pycharm\Project1\deepFakeServer\Model_train\CASIA2.0_revised\\test', transform=transform)
 test_loader= DataLoader(dataset=dataset_test, batch_size=32, shuffle=False)
 evaluator = ModelEvaluator(model=model,
                            test_loader=valid_loader,

@@ -30,7 +30,7 @@ transform = transforms.Compose([
 
 # 加载数据集
 # TODO 路径需改为训练集
-dataset = datasets.ImageFolder(root='G:\Pycharm\Project1\deepFakeServer\Model_train\data\CASIA2.0_revised', transform=transform)
+dataset = datasets.ImageFolder(root='G:\Pycharm\Project1\deepFakeServer\Model_train\CASIA2.0_revised\\train', transform=transform)
 
 '''注意调整比例参数'''
 train_size = int(0.2 * len(dataset))
@@ -64,7 +64,7 @@ trainer.train_model()
 # TODO 保存模型
 
 '''注：这里的valid_loader应该替换为test_loader'''
-dataset_test = datasets.ImageFolder(root='测试集路径', transform=transform)
+dataset_test = datasets.ImageFolder(root='G:\Pycharm\Project1\deepFakeServer\Model_train\CASIA2.0_revised\\test', transform=transform)
 test_loader= DataLoader(dataset=dataset_test, batch_size=32, shuffle=False)
 evaluator = ModelEvaluator(model=model,
                            test_loader=valid_loader,

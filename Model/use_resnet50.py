@@ -41,7 +41,7 @@ def predict_image(image_path: str) -> Tuple[str, float]:
     probability, predicted_class = torch.max(output, 1)
     predicted_class = predicted_class.item()
     probability = probability.item()
-    class_names = ['Fake', 'Real']
+    class_names = ['Real', 'Fake']
     return class_names[predicted_class], probability
 
 def get_result(image_path: str) -> Tuple[str, float]:

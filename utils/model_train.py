@@ -20,7 +20,7 @@ class ModelTrainer:
         self.train_loader = train_loader
         self.valid_loader = valid_loader
         self.epoch = epoch
-        self.num_print = 355
+        self.num_print = 1104
 
     def train_model(self):
         self.model.to(self.device)

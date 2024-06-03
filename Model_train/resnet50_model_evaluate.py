@@ -20,7 +20,7 @@ model.eval()  # 设置为评估模式
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 # 加载权重
-model.load_state_dict(torch.load('resnet50_fake_detection_model.pth'))
+model.load_state_dict(torch.load('resnet50_model_data1.pth'))
 
 # 数据预处理步骤
 transform = transforms.Compose([
@@ -70,6 +70,6 @@ def evaluate_model(model, test_loader):
     recall = cm[1, 1] / (cm[1, 0] + cm[1, 1])
     print("Recall:", recall)
 
-valid_dataset = datasets.ImageFolder(root='data/train', transform=transform)
+valid_dataset = datasets.ImageFolder(root='data/CASIA2.0_revised', transform=transform)
 valid_loader = DataLoader(valid_dataset, batch_size=32, shuffle=False)
 evaluate_model(model, valid_loader)

@@ -20,9 +20,9 @@ transform = transforms.Compose([
 ])
 
 # 加载数据集
-dataset = datasets.ImageFolder(root='data/train', transform=transform)
+dataset = datasets.ImageFolder(root='data/CASIA2.0_revised', transform=transform)
 # 划分数据集为训练集和测试集
-train_size = int(0.8 * len(dataset))
+train_size = int(0.9 * len(dataset))
 test_size = len(dataset) - train_size
 train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
 # 创建数据加载器
@@ -38,10 +38,9 @@ model = model.to(device)  # 将模型移到GPU上（如果有的话）
 
 # 定义损失函数和优化器
 criterion = nn.CrossEntropyLoss()  # 使用交叉熵损失函数
-optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)  # 使用随机梯度下降优化器
+optimizer = optim.SGD(model.parameters(), lr=0.0001, momentum=0.9)  # 使用随机梯度下降优化器
 
 num_epochs = 10  # 训练轮数
-
 
 # 训练模型
 for epoch in range(num_epochs):
@@ -51,7 +50,7 @@ for epoch in range(num_epochs):
     correct = 0
     total = 0
     for images, labels in train_loader:
-        images, labels = images.to(device), labels.to(device)  # 将数据和标签移到GPU上（如果有的话）
+        images, labels = images.to(device), labels.to(device)
         # 前向传播
         outputs = model(images)
         loss = criterion(outputs, labels)
@@ -68,10 +67,7 @@ for epoch in range(num_epochs):
     print(f'Loss: {running_loss / len(train_loader):.4f}')
     print(f'Accuracy: {100 * correct / total:.2f}%')
 
-    # 在这里添加验证集的评估代码
-    # ...
-
 # 保存模型
-torch.save(model.state_dict(), 'resnet50_fake_detection_model.pth')
+torch.save(model.state_dict(), '../Model/resnet50_model_data1.pth')
 print('Training complete')
 

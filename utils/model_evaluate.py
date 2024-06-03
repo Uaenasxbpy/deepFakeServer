@@ -1,3 +1,4 @@
+import pandas as pd
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -54,9 +55,10 @@ class ModelEvaluator:
         cm = confusion_matrix(y_true, y_pred)
         print("Confusion Matrix:")
         print(cm)
+        cm_df = pd.DataFrame(cm, index=['Real', 'Fake'], columns=['Real', 'Fake'])
 
         plt.figure(figsize=(8, 6))
-        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=np.unique(y_true), yticklabels=np.unique(y_true))
+        sns.heatmap(cm_df, annot=True, fmt="d", cmap="Blues")
         plt.xlabel('Predicted labels')
         plt.ylabel('True labels')
         plt.title('Confusion Matrix')

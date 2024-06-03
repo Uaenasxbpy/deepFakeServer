@@ -1,4 +1,4 @@
-from miniVGGModel import MiniVGG_Second
+from miniVGG_model import MiniVGG_Second
 import torch
 import torch.nn.functional as F
 from torchvision.transforms import transforms
@@ -8,15 +8,19 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 import numpy as np
 import os
+from typing import Tuple, List
 
+# 设置参数
 width = 224
 height = 224
 depth = 3
 classes = 2
 
+# 定义设备
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(device)
 
-
+# 定义图像转换
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
@@ -26,27 +30,26 @@ transform = transforms.Compose([
     )
 ])
 
-# VGG模型
-vgg_model = MiniVGG_Second(width=width,
-                           height=height,
-                           depth=depth,
-                           classes=classes).to(device)
-vgg_model.load_state_dict(torch.load('vgg_model_weights.pth', map_location=device))
+# 加载VGG模型
+vgg_model = MiniVGG_Second(width=width, height=height, depth=depth, classes=classes).to(device)
+vgg_model.load_state_dict(torch.load('vgg_model.pth', map_location=device))
 
-# ResNet模型
+# 加载ResNet模型
 resnet_model = resnet50(pretrained=False)
 num_ftrs = resnet_model.fc.in_features
 resnet_model.fc = torch.nn.Linear(num_ftrs, 2)
-resnet_model.load_state_dict(torch.load('resnet50_fake_detection_model.pth', map_location=device))
+resnet_model.load_state_dict(torch.load('resnet50_model.pth', map_location=device))
+resnet_model.to(device)
 
-def predict_image_vgg(image_path, model, transform, device):
-    '''
-    :param image_path:
-    :param model:
-    :param transform:
-    :param device:
-    :return:
-    '''
+def predict_image_vgg(image_path: str, model: torch.nn.Module, transform: transforms.Compose, device: torch.device) -> np.ndarray:
+    """
+    预测给定图像的类别概率（使用VGG模型）
+    :param image_path: 图像的路径
+    :param model: 训练好的VGG模型
+    :param transform: 图像预处理转换
+    :param device: 计算设备（CPU或GPU）
+    :return: 图像类别的概率
+    """
     image = Image.open(image_path).convert('RGB')
     image = transform(image).unsqueeze(0).to(device)
     model.eval()
@@ -54,14 +57,15 @@ def predict_image_vgg(image_path, model, transform, device):
         output = F.softmax(model(image), dim=1)
     return output.cpu().numpy()[0]
 
-def predict_image_resnet(image_path, model, transform, device):
-    '''
-    :param image_path:
-    :param model:
-    :param transform:
-    :param device:
-    :return:
-    '''
+def predict_image_resnet(image_path: str, model: torch.nn.Module, transform: transforms.Compose, device: torch.device) -> np.ndarray:
+    """
+    预测给定图像的类别概率（使用ResNet模型）
+    :param image_path: 图像的路径
+    :param model: 训练好的ResNet模型
+    :param transform: 图像预处理转换
+    :param device: 计算设备（CPU或GPU）
+    :return: 图像类别的概率
+    """
     image = Image.open(image_path).convert('RGB')
     image = transform(image).unsqueeze(0).to(device)
     model.eval()
@@ -69,12 +73,12 @@ def predict_image_resnet(image_path, model, transform, device):
         output = F.softmax(model(image), dim=1)
     return output.cpu().numpy()[0]
 
-
-def get_image_paths_and_labels(valid_dir):
-    '''
-    :param valid_dir:
-    :return:
-    '''
+def get_image_paths_and_labels(valid_dir: str) -> Tuple[List[str], List[int]]:
+    """
+    获取图像路径及其对应的标签
+    :param valid_dir: 验证集文件夹路径
+    :return: 图像路径列表及其对应的标签列表
+    """
     image_paths = []
     labels = []
     class_names = ['real', 'fake']
@@ -87,9 +91,8 @@ def get_image_paths_and_labels(valid_dir):
     return image_paths, labels
 
 # 替换为你的验证集文件夹路径
-valid_dir = 'G:\Pycharm\Project1\deepFakeServer\Model_train\CASIA2.0_revised\\test'
+valid_dir = 'G:\\Pycharm\\Project1\\deepFakeServer\\Model_train\\CASIA2.0_revised\\test'
 val_image_paths, val_labels = get_image_paths_and_labels(valid_dir)
-
 
 # 获取验证集上两个模型的预测概率
 vgg_probs = [predict_image_vgg(p, vgg_model, transform, device) for p in val_image_paths]
@@ -108,8 +111,12 @@ y_pred = log_reg.predict(X_train)
 accuracy = accuracy_score(y_train, y_pred)
 print(f'Logistic Regression Training Accuracy: {accuracy:.4f}')
 
-
-def predict_combined(image_path):
+def predict_combined(image_path: str) -> Tuple[str, float]:
+    """
+    使用组合模型预测给定图像的类别和概率
+    :param image_path: 图像的路径
+    :return: 预测的类别名称和概率
+    """
     vgg_prob = predict_image_vgg(image_path, vgg_model, transform, device)
     resnet_prob = predict_image_resnet(image_path, resnet_model, transform, device)
     combined_prob = np.hstack([vgg_prob, resnet_prob]).reshape(1, -1)
@@ -119,6 +126,6 @@ def predict_combined(image_path):
     return class_names[final_pred[0]], final_prob
 
 # 示例用法
-image_path = 'G:\Pycharm\Project1\deepFakeServer\Model_train\OIP-C.jpg'
+image_path = 'G:\\Pycharm\\Project1\\deepFakeServer\\Model_train\\OIP-C.jpg'
 predicted_class, probability = predict_combined(image_path)
 print(f'Predicted Class: {predicted_class}, Probability: {probability:.4f}')

@@ -16,7 +16,7 @@ classes = 2
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # 设置轮数
-epoch = 2
+epoch = 10
 
 # 定义输入图像的转换
 transform = transforms.Compose([
@@ -33,13 +33,13 @@ transform = transforms.Compose([
 dataset = datasets.ImageFolder(root='G:\Pycharm\Project1\deepFakeServer\Model_train\CASIA2.0_revised\\train', transform=transform)
 
 '''注意调整比例参数'''
-train_size = int(0.2 * len(dataset))
+train_size = int(0.9 * len(dataset))
 valid_size = len(dataset) - train_size
 train_dataset, valid_dataset = random_split(dataset, [train_size, valid_size])
 
 # 创建数据加载器
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-valid_loader = DataLoader(valid_dataset, batch_size=32, shuffle=False)
+train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True)
+valid_loader = DataLoader(valid_dataset, batch_size=10, shuffle=False)
 
 # 导入模型
 model = MiniVGG_Second(width=width,
@@ -50,7 +50,8 @@ model = MiniVGG_Second(width=width,
 criterion = nn.CrossEntropyLoss()
 
 # 使用随机梯度下降优化器
-optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
+optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+# optimizer = optim.Adam(model.fc.parameters())
 
 # 训练评估模型
 trainer = ModelTrainer(model=model,
@@ -61,11 +62,12 @@ trainer = ModelTrainer(model=model,
                        device=device,
                        epoch=epoch)
 trainer.train_model()
-# TODO 保存模型
+# 保存模型
+torch.save(model.state_dict(), 'minivgg_model.pth')
+print('Training complete')
 
-'''注：这里的valid_loader应该替换为test_loader'''
 dataset_test = datasets.ImageFolder(root='G:\Pycharm\Project1\deepFakeServer\Model_train\CASIA2.0_revised\\test', transform=transform)
-test_loader= DataLoader(dataset=dataset_test, batch_size=32, shuffle=False)
+test_loader= DataLoader(dataset=dataset_test, batch_size=10, shuffle=False)
 evaluator = ModelEvaluator(model=model,
                            test_loader=valid_loader,
                            device=device)
